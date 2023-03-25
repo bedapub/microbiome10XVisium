@@ -1,0 +1,40 @@
+Package: microbiome10XVisium
+Title: Profile Microbial Reads in 10X Visium Datasets
+Version: 0.0.0.9000
+Authors@R: 
+    person("Stine", "Anzböck", , "stine.anzboeck@roche.com", role = c("aut", "cre"))
+Description: Functions to perform downstream analysis after running the
+    bioinformatic pipeline X, such as UMI deduplication, decontamination,
+    visualization of spatial profiles or pseudo-bulk analysis with
+    phyloseq.
+License: MIT + file LICENSE
+Imports: 
+    devtools,
+    dplyr,
+    ggplot2,
+    graphics,
+    igraph,
+    magrittr,
+    Matrix (>= 1.5),
+    plyr,
+    RColorBrewer,
+    readr,
+    scales,
+    Seurat,
+    SeuratObject,
+    SpiecEasi,
+    taxonomizr,
+    tidyr,
+    utils
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Depends: 
+    R (>= 3.5.0)
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
