@@ -11,7 +11,7 @@ decontaminateSingleCell(
   outDir,
   removeSingletons = TRUE,
   removeLikelyContaminants = TRUE,
-  selectGastrointestinal = TRUE,
+  selectGastrointestinal = FALSE,
   removeSpecificTaxa = NULL,
   taxonomizrDB = "/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
 )

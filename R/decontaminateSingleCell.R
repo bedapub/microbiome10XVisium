@@ -19,7 +19,7 @@
 #' outDir="OUTDIR", removeSpecificTaxa=c("Mycobacterium"))
 #' }
 #'
-decontaminateSingleCell <- function(sampleName, filePath=NULL, object=NULL, outDir, removeSingletons=TRUE, removeLikelyContaminants=TRUE, selectGastrointestinal=TRUE, removeSpecificTaxa=NULL, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
+decontaminateSingleCell <- function(sampleName, filePath=NULL, object=NULL, outDir, removeSingletons=TRUE, removeLikelyContaminants=TRUE, selectGastrointestinal=FALSE, removeSpecificTaxa=NULL, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
 
   ##check parameters
 
