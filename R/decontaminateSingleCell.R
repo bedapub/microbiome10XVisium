@@ -138,6 +138,7 @@ decontaminateSingleCell <- function(sampleName, filePath=NULL, object=NULL, outD
     print(paste0(sum(eliminated_taxa$counts), " UMI_counts eliminated"))
     #print(paste0(dim(taxid_matrix)[1], " taxa remaining"))
     #print(paste0(sum(taxid_matrix), " counts remaining"))
+    taxid_matrix_raw <- taxid_matrix
   }
 
   ### DECONTAMINATION STEP#3: selecting only taxa that were defined to be gastrointestinal commensals

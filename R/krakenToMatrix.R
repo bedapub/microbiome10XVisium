@@ -1,6 +1,6 @@
-#' Creates a taxid-spot matrix from kraken output file.
+#' Creates a taxid-spot matrix from snakemake workflow output file.
 #'
-#' @param filePath A string. Path to input file (kraken output file from pipeline: SAMPLE_kraken_output.txt).
+#' @param filePath A string. Path to input file (kraken output file from snakemake workflow: SAMPLE_profiling-output.txt).
 #' @param counts A character string. Either "umi_counts" or "read_counts". Defaults to "umi_counts".
 #' @param tax_level A character string. Either "species", "genus" or "family". It is recommended to use "genus". Defaults to "genus".
 #' @param whitelist A character string. Either "10XVisium" (when working with spaceranger output data) or "10XChromium_v3.1" (when working with cellranger and Single Cell 3' v3.1 technology data).
@@ -14,7 +14,7 @@
 #' #for spatial transcriptomics
 #' \dontrun{
 #'  krakenToMatrix(filePath=
-#'  system.file("extdata", "CRC_16", "CRC_16_kraken_output.txt.gz", package="microbiome10XVisium"),
+#'  system.file("extdata", "CRC_16", "CRC_16_profiling-output.txt.gz", package="microbiome10XVisium"),
 #'  outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"))
 #' }
 #' #for scRNAseq

@@ -21,7 +21,7 @@ library(ggplot2)
 ```
 
 We are going to demonstrate the basic workflow to profile microbial reads in 10X Visium spatial transcriptomics samples with the CRC_16 sample. CRC_16 is a colorectal cancer sample form the Galeano-Niño et al. (Nature 2022) publication. 
-Using the **microbiome10XVisium** package requires that the snakemake pipeline was run beforehand.
+Using the **microbiome10XVisium** package requires that the snakemake workflow was run beforehand.
 
 The steps of the workflow involve:
 
@@ -51,7 +51,7 @@ The first step is to convert the output from the bioinformatic pipeline (*_krake
 Running **krakenToMatrix()** with default settings (i.e. tax_level="genus" and counts="umi_counts"): 
 ```{r}
 k2m <- krakenToMatrix(
-  filePath=system.file("extdata", "CRC_16", "CRC_16_kraken_output.txt.gz", package="microbiome10XVisium"),
+  filePath=system.file("extdata", "CRC_16", "CRC_16_profiling-output.txt.gz", package="microbiome10XVisium"),
   outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"), taxonomizrDB=taxonomizrDB)
 ```
 

@@ -9,7 +9,7 @@
 microbiome10XVisium is part of the *SpatialMicrobe* computational
 framework, which allows to profile microbial reads from 10XVisium
 Spatial Gene Expression data. It is used downstream of the snakemake
-pipeline X.
+workflow X.
 
 ## Installation
 
@@ -31,7 +31,7 @@ We are going to demonstrate the basic workflow to profile microbial
 reads in 10X Visium spatial transcriptomics samples with the CRC_16
 sample. The CRC_16 sample is a colorectal cancer sample form the
 Galeano-Niño et al. (Nature 2022) publication. It is expected that the
-snakemake pipeline was run beforehand.
+snakemake workflow was run beforehand.
 
 The steps of the workflow involve:
 
@@ -80,11 +80,11 @@ Running **krakenToMatrix()** with default settings
 
 ``` r
 k2m <- krakenToMatrix(
-  filePath=system.file("extdata", "CRC_16", "CRC_16_kraken_output.txt.gz", package="microbiome10XVisium"),
+  filePath=system.file("extdata", "CRC_16", "CRC_16_profiling-output.txt.gz", package="microbiome10XVisium"),
   outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"), taxonomizrDB=taxonomizrDB)
 #> [1] "325112 total microbial read counts at genus level"
 #> Joining, by = "barcode"
-#> [1] "output saved as RDS file at /tmp/Rtmptw9cRJ/temp_libpath1f81c868239263/microbiome10XVisium/extdata/CRC_16//genus_umi_counts.RDS"
+#> [1] "output saved as RDS file at /home/anzboecs/R/x86_64-pc-linux-gnu-library/4.0.5-foss/microbiome10XVisium/extdata/CRC_16//genus_umi_counts.RDS"
 ```
 
 This returns a list consisting of \$taxid_counts (a dataframe with the

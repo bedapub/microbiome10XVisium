@@ -2,7 +2,7 @@
 % Please edit documentation in R/krakenToMatrix.R
 \name{krakenToMatrix}
 \alias{krakenToMatrix}
-\title{Creates a taxid-spot matrix from kraken output file.}
+\title{Creates a taxid-spot matrix from snakemake workflow output file.}
 \usage{
 krakenToMatrix(
   filePath,
@@ -14,7 +14,7 @@ krakenToMatrix(
 )
 }
 \arguments{
-\item{filePath}{A string. Path to input file (kraken output file from pipeline: SAMPLE_kraken_output.txt).}
+\item{filePath}{A string. Path to input file (kraken output file from snakemake workflow: SAMPLE_profiling-output.txt).}
 
 \item{counts}{A character string. Either "umi_counts" or "read_counts". Defaults to "umi_counts".}
 
@@ -30,13 +30,13 @@ krakenToMatrix(
 A list containing $taxid_counts (dataframe with counts, taxonomic names and taxids) and $matrix (matrix with rows=taxids, cols=barcodes).
 }
 \description{
-Creates a taxid-spot matrix from kraken output file.
+Creates a taxid-spot matrix from snakemake workflow output file.
 }
 \examples{
 #for spatial transcriptomics
 \dontrun{
  krakenToMatrix(filePath=
- system.file("extdata", "CRC_16", "CRC_16_kraken_output.txt.gz", package="microbiome10XVisium"),
+ system.file("extdata", "CRC_16", "CRC_16_profiling-output.txt.gz", package="microbiome10XVisium"),
  outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"))
 }
 #for scRNAseq

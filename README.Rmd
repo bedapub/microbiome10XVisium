@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-microbiome10XVisium is part of the *SpatialMicrobe* computational framework, which allows to profile microbial reads from 10XVisium Spatial Gene Expression data. It is used downstream of the snakemake pipeline X. 
+microbiome10XVisium is part of the *SpatialMicrobe* computational framework, which allows to profile microbial reads from 10XVisium Spatial Gene Expression data. It is used downstream of the snakemake workflow X. 
 
 ## Installation
 
@@ -36,7 +36,7 @@ library(microbiome10XVisium)
 ```
 
 We are going to demonstrate the basic workflow to profile microbial reads in 10X Visium spatial transcriptomics samples with the CRC_16 sample. The CRC_16 sample is a colorectal cancer sample form the Galeano-Niño et al. (Nature 2022) publication. 
-It is expected that the snakemake pipeline was run beforehand.
+It is expected that the snakemake workflow was run beforehand.
 
 The steps of the workflow involve:
 
@@ -66,7 +66,7 @@ The first step is to convert the output from the bioinformatic pipeline (*_krake
 Running **krakenToMatrix()** with default settings (i.e. tax_level="genus" and counts="umi_counts"): 
 ```{r}
 k2m <- krakenToMatrix(
-  filePath=system.file("extdata", "CRC_16", "CRC_16_kraken_output.txt.gz", package="microbiome10XVisium"),
+  filePath=system.file("extdata", "CRC_16", "CRC_16_profiling-output.txt.gz", package="microbiome10XVisium"),
   outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"), taxonomizrDB=taxonomizrDB)
 ```
 
