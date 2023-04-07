@@ -15,7 +15,6 @@ decontaminate(
   selectGastrointestinal = FALSE,
   spots = "tissueOnly",
   distance = 7,
-  spatiallyVariable = FALSE,
   removeSpecificTaxa = NULL,
   taxonomizrDB = "/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
 )
@@ -40,8 +39,6 @@ decontaminate(
 \item{spots}{A string. Which spots to consider, either one of c("tissueOnly", "tissuePlusBordering", "all"). Defaults to "tissueOnly".}
 
 \item{distance}{An integer. Only required when spots=="tissuePlusBordering". Determines the size of the bordering region surrounding the tissue. Recommended values in range of (2,7). Defaults to 7.}
-
-\item{spatiallyVariable}{A logical. Whether to perform spatial variability analysis and only keep spatially variable taxa. Defaults to FALSE.}
 
 \item{removeSpecificTaxa}{A vector of strings. Vector of genus names of taxa to remove. Defaults to NULL.}
 

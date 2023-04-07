@@ -2,11 +2,10 @@ Package: microbiome10XVisium
 Title: Profile Microbial Reads in 10X Visium Datasets
 Version: 0.0.0.9000
 Authors@R: 
-    person("Stine", "Anzböck", , "stine.anzboeck@roche.com", role = c("aut", "cre"))
+    person("Stine", "Anzböck", , email = "anzboeck.stine@gmail.com", role = c("aut", "cre"))
 Description: Functions to perform downstream analysis after running the
-    bioinformatic pipeline X, such as UMI deduplication, decontamination,
-    visualization of spatial profiles or pseudo-bulk analysis with
-    phyloseq.
+    SpaceMicrobe Snakemake workflow, such as UMI deduplication, decontamination, and
+    visualization of spatial and pseudobulk microbiome profiles. 
 License: MIT + file LICENSE
 Imports: 
     devtools,

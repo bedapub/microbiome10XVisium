@@ -11,8 +11,9 @@ decontaminateSingleCell(
   outDir,
   removeSingletons = TRUE,
   removeLikelyContaminants = TRUE,
-  selectGastrointestinal = FALSE,
   removeSpecificTaxa = NULL,
+  selectGastrointestinal = FALSE,
+  selectSpecificTaxa = TRUE,
   taxonomizrDB = "/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
 )
 }
@@ -29,9 +30,11 @@ decontaminateSingleCell(
 
 \item{removeLikelyContaminants}{A logical. Whether to remove taxa defined as likely contaminants by Poore et al. (Nature 2020). Only applicable if tax_level=="genus" in krakenToMatrix(). Defaults to TRUE.}
 
+\item{removeSpecificTaxa}{A vector of strings. Vector of genus names of taxa to remove. Defaults to NULL.}
+
 \item{selectGastrointestinal}{A logical. Whether to only keep taxa defined as oral, fecal or oral/fecal transmitter by Schmidt et al. (2019 eLife). Only applicable if tax_level=="genus" in krakenToMatrix. Defaults to FALSE.}
 
-\item{removeSpecificTaxa}{A vector of strings. Vector of genus names of taxa to remove. Defaults to NULL.}
+\item{selectSpecificTaxa}{A vector of strings. Vector of genus names of taxa to keep in addition to the selectGastrointestinatl. Note: only applicable if selectGastrointestinal==TRUE. Defaults to NULL.}
 
 \item{taxonomizrDB}{A string. Path to nameNode.sqlite database required for taxonomic conversions (see README file for how to download).}
 }

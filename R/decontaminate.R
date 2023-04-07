@@ -9,7 +9,6 @@
 #' @param removeLikelyContaminants A logical. Whether to remove taxa defined as likely contaminants by Poore et al. (2020 Nature). Only applicable if tax_level=="genus" in krakenToMatrix. Defaults to TRUE.
 #' @param spots A string. Which spots to consider, either one of c("tissueOnly", "tissuePlusBordering", "all"). Defaults to "tissueOnly".
 #' @param distance An integer. Only required when spots=="tissuePlusBordering". Determines the size of the bordering region surrounding the tissue. Recommended values in range of (2,7). Defaults to 7.
-#' @param spatiallyVariable A logical. Whether to perform spatial variability analysis and only keep spatially variable taxa. Defaults to FALSE.
 #' @param removeSpecificTaxa A vector of strings. Vector of genus names of taxa to remove. Defaults to NULL.
 #' @param selectGastrointestinal A logical. Whether to only keep taxa defined as oral, fecal or oral/fecal transmitter by Schmidt et al. (2019 eLife). Only applicable if tax_level=="genus" in krakenToMatrix. Defaults to FALSE.
 #' @param taxonomizrDB A string. Path to nameNode.sqlite database required for taxonomic conversions (see README file for how to download).
@@ -24,7 +23,7 @@
 #'  spacerangerDir = system.file("extdata", "outs/", package="microbiome10XVisium"),
 #'  outDir = system.file("extdata", "CRC_16/", package="microbiome10XVisium"))
 #' }
-decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir, outDir, removeSingletons=TRUE, removeLikelyContaminants=TRUE, selectGastrointestinal=FALSE, spots="tissueOnly", distance=7, spatiallyVariable=FALSE, removeSpecificTaxa=NULL, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
+decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir, outDir, removeSingletons=TRUE, removeLikelyContaminants=TRUE, selectGastrointestinal=FALSE, spots="tissueOnly", distance=7, removeSpecificTaxa=NULL, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
 
   ##check parameters
 
@@ -106,6 +105,7 @@ decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir
   ### DECONTAMINATION STEP#1: remove singleton UMI or read counts (i.e. barcodes with only 1 UMI count for a taxid)
   if(removeSingletons==TRUE){
     cat("\nDecontamination step: removing singleton counts")
+    cat("\n")
     taxid_matrix[taxid_matrix==1] <- 0
     #remove taxids with only zeros
     taxid_matrix <- taxid_matrix[Matrix::rowSums(taxid_matrix)>0,]
@@ -118,6 +118,7 @@ decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir
   ### DECONTAMINATION STEP #2: remove likely contaminants defined by Poore et al. or user-defined
   if(removeLikelyContaminants==TRUE){
     cat("\nDecontamination step: removing taxa that are likely contaminants")
+    cat("\n")
     #import list with likely contaminants from Poore et al.
     contaminants <- readr::read_delim(file=system.file("extdata", "contaminants.txt", package="microbiome10XVisium", mustWork=TRUE),
                                       delim = "\t", skip = 1, show_col_types = FALSE) %>%
@@ -166,6 +167,7 @@ decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir
   if (selectGastrointestinal==TRUE){
     cat("\n")
     print(paste0("Decontamination step: only keeping taxa that are gastrointestinal commensals"))
+    cat("\n")
     #import list with gastrointestinal taxa at genus level
     commensals <- readr::read_delim(file=system.file("extdata", "schmidt_elife_gastrointestinal_tract_genus_level.txt", package="microbiome10XVisium", mustWork=TRUE),
                                       delim = "\t", col_names = "genus",show_col_types = FALSE)
@@ -200,6 +202,7 @@ decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir
   ### DECONTAMINATION STEP#4: create Seurat object and remove taxa in non-selected spots
   cat("\n")
   print(paste0("Decontamination step: only keeping taxa that are present in ", spots, " spots"))
+  cat("\n")
   #creating Seurat object
   if (spots=="all"){
     #loading all spots (not only filtered)
@@ -309,28 +312,6 @@ decontaminate <- function(sampleName, filePath=NULL, object=NULL, spacerangerDir
     # add this assay to the previously created Seurat object
     suppressWarnings(spatial[["TAXA_G"]] <- microbial_assay)
     suppressWarnings(Seurat::DefaultAssay(spatial) <- "TAXA_G")
-  }
-
-
-  if (spatiallyVariable==TRUE){
-    ### DECONTAMINATION STEP#5: Removing taxa that are not spatially variable (based on Moran's I spatial autocorrelation)
-    cat("\nDecontamination step: removing taxa that are not spatially variable")
-    spatial <- Seurat::FindSpatiallyVariableFeatures(object=spatial, assay="TAXA_G", slot="counts",selection.method="moransi")
-    #filter out taxa based on spatial variability analysis
-    moransi_analysis <- spatial@assays[["TAXA_G"]]@meta.features %>% dplyr::filter(MoransI_observed>=0.01, MoransI_p.value<0.001) %>% rownames()
-    # create a new assay
-    spatially_variable_taxa <- taxid_matrix@Dimnames[[1]] %in% moransi_analysis
-    taxid_matrix <- taxid_matrix[spatially_variable_taxa,]
-    if (sum(spatially_variable_taxa)==0){
-      result <- NULL
-      saveRDS(result, file=paste0(outDir, "/", sampleName, "_Seurat_object.RDS"))
-      print("No taxa left after decontamination. Returning NULL object.")
-      return(result)
-    }
-    microbial_assay <- Seurat::CreateAssayObject(counts = taxid_matrix)
-    # add this assay to the previously created Seurat object
-    spatial[["TAXA_G"]] <- microbial_assay
-    Seurat::DefaultAssay(spatial) <- "TAXA_G"
   }
 
   if (length(taxid_matrix@Dimnames[[1]])!=0){

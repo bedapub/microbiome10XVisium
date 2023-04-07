@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-microbiome10XVisium is part of the *SpatialMicrobe* computational framework, which allows to profile microbial reads from 10XVisium Spatial Gene Expression data. It is used downstream of the snakemake workflow X. 
+microbiome10XVisium is part of the *SpaceMicrobe* computational framework, which allows you to profile microbial reads from 10X Visium Spatial Gene Expression data. It is used downstream of the [Snakemake workflow](https://github.com/bedapub/space-microbe/). 
 
 ## Installation
 
@@ -36,17 +36,17 @@ library(microbiome10XVisium)
 ```
 
 We are going to demonstrate the basic workflow to profile microbial reads in 10X Visium spatial transcriptomics samples with the CRC_16 sample. The CRC_16 sample is a colorectal cancer sample form the Galeano-Niño et al. (Nature 2022) publication. 
-It is expected that the snakemake workflow was run beforehand.
+It is expected that the Snakemake workflow was run beforehand.
 
 The steps of the workflow involve:
 
-1) **krakenToMatrix()**: barcode correction, UMI deduplication and resolving the reads at a specific taxonomic level
-2) **decontaminate()**: running various decontamination steps and adding the microbiome information as an additional assay to a Seurat object containing the GEX assay
-3) Downstream analysis and visualization, such as visualizing the pseudobulk microbiome composition, spatial profiles of certain microbes or co-occurrence of taxa in spots.
+1) **krakenToMatrix()**: barcode correction, UMI deduplication and resolving the reads at genus level
+2) **decontaminate()**: running various decontamination steps and adding the microbiome information as an additional assay to a Seurat object containing the host gene expression (GEX) assay and the tissue image
+3) Downstream analysis and visualization, such as visualizing the microbiome pseduobulk composition, spatial profiles of certain microbes or co-occurrence of taxa in spots.
 
 ### Preparation
 
-In case of using the microbiome10XVisium for the first time, it is required to download a SQLite DB for taxonomic conversion (performed with the *taxonomizr* R package, for more info: https://github.com/sherrillmix/taxonomizr). Run the following code once:
+In case of using the microbiome10XVisium for the first time, it is required to download a SQLite database for taxonomic conversion (performed with the *taxonomizr* R package, for more info: https://github.com/sherrillmix/taxonomizr). Run the following code once:
 
 ```{r eval=FALSE, include=TRUE}
 library(taxonomizr)
@@ -61,7 +61,7 @@ taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sql
 
 ### krakenToMatrix()
 
-The first step is to convert the output from the bioinformatic pipeline (*_kraken_output.txt file consisting of three columns BC, UMI and taxid) into a taxid-spot matrix at a particular taxonomic level, similar to the gene-spot matrix for host transcriptomics. The function krakenToMatrix() performs this, while also performing barcode correction, resolving the taxonomic classifications of the reads to a specific taxonomic level (recommended: genus level) and collapsing reads into UMI counts. 
+The first step is to convert the output from the bioinformatic pipeline (*_profiling-output.txt file consisting of three columns BC, UMI and taxid) into a taxid-spot matrix at a particular taxonomic level, similar to the gene-spot matrix for host transcriptomics. The function krakenToMatrix() performs this, while also performing barcode correction, resolving the taxonomic classifications of the reads to genus level and collapsing reads into UMI counts. 
 
 Running **krakenToMatrix()** with default settings (i.e. tax_level="genus" and counts="umi_counts"): 
 ```{r}
@@ -74,7 +74,7 @@ This returns a list consisting of \$taxid_counts (a dataframe with the pseudobul
 ```{r results='asis'}
 knitr::kable(head(k2m$taxid_counts, n=5))
 ```
-As we can see, the top 5 taxa detected in this sample are **Fusobacterium**, **Bacteroides**, **Leptotrichia**, **Campylobacter** and **Gemella**.
+As we can see, the top 5 taxa detected in this sample are *Fusobacterium*, *Bacteroides*, *Leptotrichia*, *Campylobacter* and *Gemella*.
 
 ```{r}
 dim(k2m$matrix)
@@ -86,9 +86,11 @@ All in all, 962 genera were detected in the 4992 spots of the 10X Visium tissue 
 The next step is to decontaminate the taxid-spot matrix. There are multiple options for decontamination and we recommend an iterative approach for each dataset to find the optimal decontamination strategy. The decontamination can be performed on four levels:
 
 1) **removeSingletons**: removes singleton counts (i.e. values of 1 in the taxid-spot matrix), which are probable false-positives from the taxonomic classification process.
-2) **removeLikelyContaminants**: removes taxa that are likely contaminants (defined by Poore et al. (Nature 2020)). **removeSpecificTaxa**: removes additional taxa defined by the users that seem to be contaminants, but are not included in the list (for example Mycobacterium).
-3) **selectGastrointestinal**: only keeps taxa that are likely gastrointestinal (oral or fecal) commensals (defined by Schmidt et al. (eLife 2019)).
+2) **removeLikelyContaminants**: removes taxa that are likely contaminants (defined by Poore et al. (Nature 2020)). **removeSpecificTaxa**: removes additional taxa defined by the user that seem to be contaminants, but are not included in the list (for example Mycobacterium). 
+3) **selectGastrointestinal**: only keeps taxa that are bacteria known to collonize the gastrointestinal tract or oral cavity (defined by Schmidt et al. (eLife 2019)). **selectSpecificTaxa**: selects additional taxa defined by the user.
 4) **spots**: this selects spots from the 10X Visium slide. The 10X Visium tissue slide consists of 4992 spots, but only some of the spots are covered by tissue (termed "tissueOnly"). The user has the option to only choose tissue-covered spots ("tissueOnly"), tissue-covered spots and additionally spots that are bordering the tissue ("tissuePlusBordering") or to select all spots on the slide ("all"). We propose to run "all" first to get an overview of the microbial signal on the slide, and then to choose either "tissueOnly" or "tissuePlusBordering" (in case of high microbial signal in tissue bordering region) for the final decontaminated version. 
+
+*decontaminate()* additionally requires access to the spaceranger count **outs** folder, which contains the host GEX matrix and the tissue image (file to the **outs** folder has to be provided to the *spacerangerDir* parameter).
 
 #### all spots
 ```{r message=FALSE, warning=FALSE}
@@ -103,12 +105,12 @@ CRC_16_all <- decontaminate(sampleName = "CRC_16",
               taxonomizrDB=taxonomizrDB)
 ```
 
-Looking at the spatial microbiome profile after this round of decontamination:
+Looking at the spatial microbiome profile after this first round of decontamination:
 ```{r results='asis'}
 spatialPlot(CRC_16_all, taxa="all", taxonomizrDB=taxonomizrDB)
 ```
 
-We can see that most of the signal is located in tissue-covered spots and detect that there is a weird area with high microbial signal on the left, not related to the tissue. Thus we can proceed with only including the tissue-covered spots ("tissueOnly"). 
+We can see that most of the signal is located in the tissue-covered spots and detect that there is a weird area with high microbial signal on the left, not related to the tissue. Thus we can proceed with only including the tissue-covered spots ("tissueOnly"). 
 
 #### only considering tissue-covered spots
 
@@ -168,14 +170,14 @@ cooccurrenceNetwork(object=CRC_16_tissueOnly, threshold=0.5)
 There seems to be some co-occurrence of the top 5 most abundant taxa in the sample: **Fusobacterium**, **Bacteroides**, **Leptotrichia**, **Campylobacter** and **Gemella**.
 
 #### Pseudobulk analyis
-Moving away from the spatial profiles and looking at the pseudobulk relative abundance profiles instead:
+Moving away from the spatial profiles and looking at the microbiome pseudobulk profile instead:
 ```{r fig.fullwidth=TRUE}
 pseudoBulkProfile(sampleName="CRC_16", object=CRC_16_tissueOnly) + ggplot2::ggtitle("")
 ```
 
 ### exporting the decontaminated taxid-spot matrix
 
-The decontaminated taxid-spot matrix can be exported as csv file - to be integrated into other analyses (outside of R and the Seurat package).
+The decontaminated taxid-spot matrix can be exported as csv file and thereafter be integrated into other spatial transcriptomics analysis pipelines (outside of R and the Seurat package).
 
 ```{r}
 # with taxids as matrix rownames

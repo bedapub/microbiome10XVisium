@@ -130,7 +130,7 @@ krakenToMatrix <- function(filePath, counts="umi_counts", tax_level="genus", whi
   data$taxid <- as.character(data$taxid)
   matrix <- tidyr::pivot_wider(data, names_from=taxid, values_from = counts, values_fill=0)
   #complete barcodes from whitelist with 0s
-  matrix <- dplyr::left_join(whitelist, matrix)
+  matrix <- dplyr::left_join(whitelist, matrix, by="barcode")
   matrix[is.na(matrix)] <- 0
   #add -1 to barcode column
   matrix$barcode <- paste0(matrix$barcode, "-1")

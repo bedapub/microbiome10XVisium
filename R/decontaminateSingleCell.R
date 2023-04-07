@@ -9,6 +9,7 @@
 #' @param removeSpecificTaxa A vector of strings. Vector of genus names of taxa to remove. Defaults to NULL.
 #' @param selectGastrointestinal A logical. Whether to only keep taxa defined as oral, fecal or oral/fecal transmitter by Schmidt et al. (2019 eLife). Only applicable if tax_level=="genus" in krakenToMatrix. Defaults to FALSE.
 #' @param taxonomizrDB A string. Path to nameNode.sqlite database required for taxonomic conversions (see README file for how to download).
+#' @param selectSpecificTaxa A vector of strings. Vector of genus names of taxa to keep in addition to the selectGastrointestinatl. Note: only applicable if selectGastrointestinal==TRUE. Defaults to NULL.
 #'
 #' @return  A list of $matrix (decontaminated taxid-cell matrix) and $taxid_counts (dataframe with taxids, taxa name and counts).
 #' @export
@@ -19,7 +20,7 @@
 #' outDir="OUTDIR", removeSpecificTaxa=c("Mycobacterium"))
 #' }
 #'
-decontaminateSingleCell <- function(sampleName, filePath=NULL, object=NULL, outDir, removeSingletons=TRUE, removeLikelyContaminants=TRUE, selectGastrointestinal=FALSE, removeSpecificTaxa=NULL, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
+decontaminateSingleCell <- function(sampleName, filePath=NULL, object=NULL, outDir, removeSingletons=TRUE, removeLikelyContaminants=TRUE, removeSpecificTaxa=NULL, selectGastrointestinal=FALSE, selectSpecificTaxa=TRUE, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
 
   ##check parameters
 
@@ -152,6 +153,14 @@ decontaminateSingleCell <- function(sampleName, filePath=NULL, object=NULL, outD
     suppressWarnings(commensals_id <- taxonomizr::getId(taxa=commensals$genus, taxonomizrDB))
     commensals_id <- gsub("\\,.*","",commensals_id)
     commensals_id <- commensals_id[!is.na(commensals_id)]
+
+    ### DECONTAMINATION STEP#4: selecting additional taxa to keep
+    if (!is.null(selectSpecificTaxa)){
+      suppressWarnings(additional_commensals_id <- taxonomizr::getId(taxa=selectSpecificTaxa, taxonomizrDB))
+      additional_commensals_id <- gsub("\\,.*","",additional_commensals_id)
+      additional_commensals_id <- additional_commensals_id[!is.na(additional_commensals_id)]
+      commensals_id <- append(commensals_id, additional_commensals_id)
+    }
 
     #only keep commensals in matrix
     commensals_rownames <- taxid_matrix_raw@Dimnames[[1]] %in% commensals_id
