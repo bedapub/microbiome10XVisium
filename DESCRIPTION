@@ -21,7 +21,6 @@ Imports:
     scales,
     Seurat,
     SeuratObject,
-    SpiecEasi,
     taxonomizr,
     tidyr,
     utils
