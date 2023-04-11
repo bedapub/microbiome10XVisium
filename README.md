@@ -330,6 +330,13 @@ There seems to be some co-occurrence of the top 5 most abundant taxa in
 the sample: **Fusobacterium**, **Bacteroides**, **Leptotrichia**,
 **Campylobacter** and **Gemella**.
 
+Note: to be able to use the **cooccurrenceNetwork()** function, it is necessary to install the **SpiecEasi** package. For further information check out the [SpiecEasi GitHub](https://github.com/zdk123/SpiecEasi).
+
+``` r
+library(devtools)
+install_github("zdk123/SpiecEasi")
+```
+
 #### Pseudobulk analyis
 
 Moving away from the spatial profiles and looking at the microbiome
