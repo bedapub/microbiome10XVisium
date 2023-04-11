@@ -18,7 +18,7 @@ You can install the development version of microbiome10XVisium from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("bedapub/spatial-microbe")
+devtools::install_github("bedapub/microbiome10XVisium")
 ```
 
 ## Basic use case
