@@ -30,8 +30,10 @@ library(microbiome10XVisium)
 We are going to demonstrate the basic workflow to profile microbial
 reads in 10X Visium spatial transcriptomics samples with the CRC_16
 sample. The CRC_16 sample is a colorectal cancer sample form the
-Galeano-Niño et al. (Nature 2022) publication. It is expected that the
-Snakemake workflow was run beforehand.
+[Galeano-Niño et
+al. publication](https://doi.org/10.1038/s41586-022-05435-0). It is
+expected that the [Snakemake
+workflow](https://github.com/bedapub/space-microbe/) was run beforehand.
 
 The steps of the workflow involve:
 
@@ -330,7 +332,9 @@ There seems to be some co-occurrence of the top 5 most abundant taxa in
 the sample: **Fusobacterium**, **Bacteroides**, **Leptotrichia**,
 **Campylobacter** and **Gemella**.
 
-Note: to be able to use the **cooccurrenceNetwork()** function, it is necessary to install the **SpiecEasi** package. For further information check out the [SpiecEasi GitHub](https://github.com/zdk123/SpiecEasi).
+Note: to be able to use the **cooccurrenceNetwork()** function, it is
+necessary to install the **SpiecEasi** package. For further information
+check out the [SpiecEasi GitHub](https://github.com/zdk123/SpiecEasi).
 
 ``` r
 library(devtools)
@@ -346,7 +350,7 @@ pseudobulk profile instead:
 pseudoBulkProfile(sampleName="CRC_16", object=CRC_16_tissueOnly) + ggplot2::ggtitle("")
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 ### exporting the decontaminated taxid-spot matrix
 

@@ -1,6 +1,7 @@
 #' Creates an interactive Seurat SpatialFeaturePlot allowing to probe for different taxa and visualize the UMI counts of taxa on the tissue image.
 #'
 #' @param object List. Output from decontaminate() function, containing $seurat_object and $taxid_counts.
+#' @param taxonomizrDB A string. Path to nameNode.sqlite database required for taxonomic conversions (see README file for how to download).
 #'
 #' @return a Seurat::SpatialFeaturePlot
 #' @export
@@ -10,14 +11,15 @@
 #'  interactive_spatialPlot(CRC_16)
 #' }
 #'
-interactive_spatialPlot <- function(object){
+interactive_spatialPlot <- function(object, taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
 
-  #load file for taxonomizr package
-  FILE <- system.file("extdata", "nameNode.sqlite", package="microbiome10XVisium", mustWork=TRUE)
+  if(!file.exists(taxonomizrDB)){
+    stop("file in taxonomizrDB doesn't exist. Please download SQLite database for taxonomizr by following the instructions in the README.")
+  }
 
   #change dimnames from taxid to taxonomic names
   orig_assay <- object[["seurat_object"]]@assays[["TAXA_G"]]@counts
-  taxnames <- taxonomizr::getTaxonomy(rownames(orig_assay), FILE, desiredTaxa = "genus")
+  taxnames <- taxonomizr::getTaxonomy(rownames(orig_assay), taxonomizrDB, desiredTaxa = "genus")
   rownames(orig_assay) <- taxnames
   orig_assay <- Seurat::CreateAssayObject(counts = orig_assay)
   object$seurat_object[["TAXA_G"]] <- orig_assay

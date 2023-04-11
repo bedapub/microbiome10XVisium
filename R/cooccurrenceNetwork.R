@@ -16,6 +16,7 @@
 cooccurrenceNetwork <- function(object, threshold=0.1,taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"){
 
   devtools::install_github("zdk123/SpiecEasi")
+  library(SpiecEasi)
 
   #create a matrix with rows=taxa, cols=spots for sample
   s1 <- object$matrix

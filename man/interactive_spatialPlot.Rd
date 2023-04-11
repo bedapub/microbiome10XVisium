@@ -4,10 +4,15 @@
 \alias{interactive_spatialPlot}
 \title{Creates an interactive Seurat SpatialFeaturePlot allowing to probe for different taxa and visualize the UMI counts of taxa on the tissue image.}
 \usage{
-interactive_spatialPlot(object)
+interactive_spatialPlot(
+  object,
+  taxonomizrDB = "/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
+)
 }
 \arguments{
 \item{object}{List. Output from decontaminate() function, containing $seurat_object and $taxid_counts.}
+
+\item{taxonomizrDB}{A string. Path to nameNode.sqlite database required for taxonomic conversions (see README file for how to download).}
 }
 \value{
 a Seurat::SpatialFeaturePlot

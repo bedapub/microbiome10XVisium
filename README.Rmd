@@ -26,7 +26,7 @@ You can install the development version of microbiome10XVisium from [GitHub](htt
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("bedapub/spatial-microbe")
+devtools::install_github("bedapub/microbiome10XVisium")
 ```
 
 ## Basic use case
@@ -35,8 +35,8 @@ devtools::install_github("bedapub/spatial-microbe")
 library(microbiome10XVisium)
 ```
 
-We are going to demonstrate the basic workflow to profile microbial reads in 10X Visium spatial transcriptomics samples with the CRC_16 sample. The CRC_16 sample is a colorectal cancer sample form the Galeano-Niño et al. (Nature 2022) publication. 
-It is expected that the Snakemake workflow was run beforehand.
+We are going to demonstrate the basic workflow to profile microbial reads in 10X Visium spatial transcriptomics samples with the CRC_16 sample. The CRC_16 sample is a colorectal cancer sample form the [Galeano-Niño et al. publication](https://doi.org/10.1038/s41586-022-05435-0). 
+It is expected that the [Snakemake workflow](https://github.com/bedapub/space-microbe/) was run beforehand.
 
 The steps of the workflow involve:
 
@@ -168,6 +168,13 @@ cooccurrenceNetwork(object=CRC_16_tissueOnly, threshold=0.5)
 ```
 
 There seems to be some co-occurrence of the top 5 most abundant taxa in the sample: **Fusobacterium**, **Bacteroides**, **Leptotrichia**, **Campylobacter** and **Gemella**.
+
+Note: to be able to use the **cooccurrenceNetwork()** function, it is necessary to install the **SpiecEasi** package. For further information check out the [SpiecEasi GitHub](https://github.com/zdk123/SpiecEasi).
+
+```{r eval=FALSE, include=TRUE}
+library(devtools)
+install_github("zdk123/SpiecEasi")
+```
 
 #### Pseudobulk analyis
 Moving away from the spatial profiles and looking at the microbiome pseudobulk profile instead:
