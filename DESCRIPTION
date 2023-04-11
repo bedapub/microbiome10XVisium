@@ -21,6 +21,7 @@ Imports:
     scales,
     Seurat,
     SeuratObject,
+    hdf5r,
     taxonomizr,
     tidyr,
     utils
