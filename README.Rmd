@@ -13,12 +13,22 @@ knitr::opts_chunk$set(
 )
 ```
 
-# microbiome10XVisium
+# microbiome10XVisium R package
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-microbiome10XVisium is part of the *SpaceMicrobe* computational framework, which allows you to profile microbial reads from 10X Visium Spatial Gene Expression data. It is used downstream of the [Snakemake workflow](https://github.com/bedapub/space-microbe/). 
+microbiome10XVisium is part of the *SpaceMicrobe* computational framework, which allows you to profile microbial reads from 10X Visium Spatial Gene Expression data. It is used downstream of the *SpaceMicrobe* [Snakemake workflow](https://github.com/bedapub/space-microbe/). 
+
+## Table of contents
+
+* [Installation](#installation)
+* [Preparation](#preparation)
+* [Basic use case](#basic-use-case)
+  * [krakenToMatrix](#krakentomatrix)
+  * [decontaminate](#decontaminate) 
+  * [Visualization](#visualization)
+  * [Exporting](#exporting)
 
 ## Installation
 
@@ -27,6 +37,21 @@ You can install the development version of microbiome10XVisium from [GitHub](htt
 ``` r
 # install.packages("devtools")
 devtools::install_github("bedapub/microbiome10XVisium")
+```
+
+## Preparation
+
+In case of using the microbiome10XVisium for the first time, it is required to download a SQLite database for taxonomic conversion (performed with the *taxonomizr* R package, for more info click [here](https://github.com/sherrillmix/taxonomizr)). Run the following code once:
+
+```{r eval=FALSE, include=TRUE}
+library(taxonomizr)
+taxonomizrDB = "DESIRED/FILEPATH/FOR/SQLite/DB/nameNode.sqlite"
+taxonomizr::prepareDatabase(sqlFile=taxonomizrDB, getAccessions=FALSE)
+```
+
+Specify the location of the SQLite DB for downstream use (this is an example for pRED microbiome internal use):
+```{r}
+taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
 ```
 
 ## Basic use case
@@ -44,22 +69,7 @@ The steps of the workflow involve:
 2) **decontaminate()**: running various decontamination steps and adding the microbiome information as an additional assay to a Seurat object containing the host gene expression (GEX) assay and the tissue image
 3) Downstream analysis and visualization, such as visualizing the microbiome pseduobulk composition, spatial profiles of certain microbes or co-occurrence of taxa in spots.
 
-### Preparation
-
-In case of using the microbiome10XVisium for the first time, it is required to download a SQLite database for taxonomic conversion (performed with the *taxonomizr* R package, for more info: https://github.com/sherrillmix/taxonomizr). Run the following code once:
-
-```{r eval=FALSE, include=TRUE}
-library(taxonomizr)
-taxonomizrDB = "DESIRED/FILEPATH/FOR/SQLite/DB/nameNode.sqlite"
-taxonomizr::prepareDatabase(sqlFile=taxonomizr_DB, getAccessions=FALSE)
-```
-
-Specify the location of the SQLite DB for downstream use:
-```{r}
-taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
-```
-
-### krakenToMatrix()
+### krakenToMatrix
 
 The first step is to convert the output from the bioinformatic pipeline (*_profiling-output.txt file consisting of three columns BC, UMI and taxid) into a taxid-spot matrix at a particular taxonomic level, similar to the gene-spot matrix for host transcriptomics. The function krakenToMatrix() performs this, while also performing barcode correction, resolving the taxonomic classifications of the reads to genus level and collapsing reads into UMI counts. 
 
@@ -81,7 +91,7 @@ dim(k2m$matrix)
 ```
 All in all, 962 genera were detected in the 4992 spots of the 10X Visium tissue slide.
 
-### decontaminate()
+### decontaminate
 
 The next step is to decontaminate the taxid-spot matrix. There are multiple options for decontamination and we recommend an iterative approach for each dataset to find the optimal decontamination strategy. The decontamination can be performed on four levels:
 
@@ -132,7 +142,7 @@ Looking at the spatial microbiome profile after this round of decontamination:
 spatialPlot(CRC_16_tissueOnly, taxa="all", taxonomizrDB=taxonomizrDB)
 ```
 
-### Downstream analyis and visualization
+### Visualization
 
 To get an overview of what the most abundant microbial taxa are in this sample after decontamination, we can have a look at the $taxid_counts dataframe.
 ```{r results='asis'}
@@ -182,7 +192,7 @@ Moving away from the spatial profiles and looking at the microbiome pseudobulk p
 pseudoBulkProfile(sampleName="CRC_16", object=CRC_16_tissueOnly) + ggplot2::ggtitle("")
 ```
 
-### exporting the decontaminated taxid-spot matrix
+### Exporting
 
 The decontaminated taxid-spot matrix can be exported as csv file and thereafter be integrated into other spatial transcriptomics analysis pipelines (outside of R and the Seurat package).
 

@@ -1,15 +1,26 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# microbiome10XVisium
+# microbiome10XVisium R package
 
 <!-- badges: start -->
 <!-- badges: end -->
 
 microbiome10XVisium is part of the *SpaceMicrobe* computational
 framework, which allows you to profile microbial reads from 10X Visium
-Spatial Gene Expression data. It is used downstream of the [Snakemake
+Spatial Gene Expression data. It is used downstream of the
+*SpaceMicrobe* [Snakemake
 workflow](https://github.com/bedapub/space-microbe/).
+
+## Table of contents
+
+-   [Installation](#installation)
+-   [Preparation](#preparation)
+-   [Basic use case](#basic-use-case)
+    -   [krakenToMatrix](#krakentomatrix)
+    -   [decontaminate](#decontaminate)
+    -   [Visualization](#visualization)
+    -   [Exporting](#exporting)
 
 ## Installation
 
@@ -19,6 +30,27 @@ You can install the development version of microbiome10XVisium from
 ``` r
 # install.packages("devtools")
 devtools::install_github("bedapub/microbiome10XVisium")
+```
+
+## Preparation
+
+In case of using the microbiome10XVisium for the first time, it is
+required to download a SQLite database for taxonomic conversion
+(performed with the *taxonomizr* R package, for more info click
+[here](https://github.com/sherrillmix/taxonomizr)). Run the following
+code once:
+
+``` r
+library(taxonomizr)
+taxonomizrDB = "DESIRED/FILEPATH/FOR/SQLite/DB/nameNode.sqlite"
+taxonomizr::prepareDatabase(sqlFile=taxonomizrDB, getAccessions=FALSE)
+```
+
+Specify the location of the SQLite DB for downstream use (this is an
+example for pRED microbiome internal use):
+
+``` r
+taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
 ```
 
 ## Basic use case
@@ -47,27 +79,7 @@ The steps of the workflow involve:
     microbiome pseduobulk composition, spatial profiles of certain
     microbes or co-occurrence of taxa in spots.
 
-### Preparation
-
-In case of using the microbiome10XVisium for the first time, it is
-required to download a SQLite database for taxonomic conversion
-(performed with the *taxonomizr* R package, for more info:
-<https://github.com/sherrillmix/taxonomizr>). Run the following code
-once:
-
-``` r
-library(taxonomizr)
-taxonomizrDB = "DESIRED/FILEPATH/FOR/SQLite/DB/nameNode.sqlite"
-taxonomizr::prepareDatabase(sqlFile=taxonomizr_DB, getAccessions=FALSE)
-```
-
-Specify the location of the SQLite DB for downstream use:
-
-``` r
-taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
-```
-
-### krakenToMatrix()
+### krakenToMatrix
 
 The first step is to convert the output from the bioinformatic pipeline
 (\*\_profiling-output.txt file consisting of three columns BC, UMI and
@@ -116,7 +128,7 @@ dim(k2m$matrix)
 All in all, 962 genera were detected in the 4992 spots of the 10X Visium
 tissue slide.
 
-### decontaminate()
+### decontaminate
 
 The next step is to decontaminate the taxid-spot matrix. There are
 multiple options for decontamination and we recommend an iterative
@@ -268,7 +280,7 @@ spatialPlot(CRC_16_tissueOnly, taxa="all", taxonomizrDB=taxonomizrDB)
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
-### Downstream analyis and visualization
+### Visualization
 
 To get an overview of what the most abundant microbial taxa are in this
 sample after decontamination, we can have a look at the \$taxid_counts
@@ -352,7 +364,7 @@ pseudoBulkProfile(sampleName="CRC_16", object=CRC_16_tissueOnly) + ggplot2::ggti
 
 <img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
-### exporting the decontaminated taxid-spot matrix
+### Exporting
 
 The decontaminated taxid-spot matrix can be exported as csv file and
 thereafter be integrated into other spatial transcriptomics analysis
