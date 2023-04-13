@@ -29,6 +29,7 @@ microbiome10XVisium is part of the *SpaceMicrobe* computational framework, which
   * [decontaminate](#decontaminate) 
   * [Visualization](#visualization)
   * [Exporting](#exporting)
+* [Templates](#templates)
 
 ## Installation
 
@@ -203,3 +204,6 @@ export_matrix(object=CRC_16_tissueOnly, rownames="taxid", outDir=system.file("ex
 export_matrix(object=CRC_16_tissueOnly, rownames="genus", outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"), taxonomizrDB=taxonomizrDB)
 ```
 
+## Templates
+
+Rmd templates to generate html output files for the analysis of a spatial transcriptomics or single-cell RNA-seq dataset are available in **inst/rmarkdown/templates/**.

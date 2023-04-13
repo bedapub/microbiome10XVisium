@@ -21,6 +21,7 @@ workflow](https://github.com/bedapub/space-microbe/).
     -   [decontaminate](#decontaminate)
     -   [Visualization](#visualization)
     -   [Exporting](#exporting)
+-   [Templates](#templates)
 
 ## Installation
 
@@ -376,3 +377,9 @@ export_matrix(object=CRC_16_tissueOnly, rownames="taxid", outDir=system.file("ex
 # with genus names as matrix rownames
 export_matrix(object=CRC_16_tissueOnly, rownames="genus", outDir=system.file("extdata", "CRC_16/", package="microbiome10XVisium"), taxonomizrDB=taxonomizrDB)
 ```
+
+## Templates
+
+Rmd templates to generate html output files for the analysis of a
+spatial transcriptomics or single-cell RNA-seq dataset are available in
+**inst/rmarkdown/templates/**.
