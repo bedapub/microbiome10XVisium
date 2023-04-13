@@ -1,0 +1,178 @@
+---
+title: "Analysis of a spatial transcriptomics dataset"
+author: "Stine Anzböck"
+date: "13/04/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### loading libraries
+```{r message=FALSE, warning=FALSE}
+library(microbiome10XVisium)
+library(tidyverse)
+library(taxonomizr)
+taxonomizrDB="/projects/site/pred/microbiome/database/taxonomizr_DB/nameNode.sqlite"
+```
+
+# DATASET NAME
+
+## Dataset definitions
+Assuming that the directory structure looks like this:
+
+HOMEDIR/spaceranger/DATASET/SAMPLE/outs
+HOMEDIR/snakemake_workflow/DATASET/SAMPLE/
+HOMEDIR/R_analysis/DATASET/SAMPLE/
+
+With spaceranger/DATASET being the directory where spaceranger count was run on the dataset and snakemake_workflow/DATASET being the directory where the Snakemake workflow was run on the dataset. R_analysis folder will contain all of the RDS and other files from this analysis.
+```{r message=FALSE, warning=FALSE}
+#parent directory for all analyses
+HOMEDIR <- "/path/to/directory/"
+#sample names of all samples in the dataset
+SAMPLES <- c("SAMPLE_1", "SAMPLE_2")
+#name of dataset (that is)
+DATASET <- "DATASET_NAME"
+
+#spaceranger outs directory
+SPACERANGER_DIR <- c()
+#Snakemake workflow output directory (sample-level)
+SNAKEMAKE_DIR <- c()
+#output directory for this analysis 
+dir.create(paste0(HOMEDIR, "R_analysis/"))
+dir.create(paste0(HOMEDIR, "R_analysis/DATASET/"))
+OUT_DIR <- c()
+for (i in 1:length(SAMPLES)){
+  SPACERANGER_DIR[i] <- paste0(HOMEDIR,"spaceranger/out_", DATASET, "/", SAMPLES[i], "/outs/")
+  SNAKEMAKE_DIR[i] <- paste0(HOMEDIR,"snakemake_workflow/", DATASET, "/", SAMPLES[i], "/") 
+  OUT_DIR[i] <- paste0(HOMEDIR,"R_analysis/", DATASET, "/", SAMPLES[i], "/")
+}
+```
+
+## 1. krakenToMatrix()
+
+Generating genus-level taxID-spot matrices with  *krakenToMatrix()*.
+
+```{r}
+k2m_output <- c()
+for (i in 1:length(SAMPLES)){
+  k2m_output[i] <- paste0(OUT_DIR[i],"/genus_umi_counts.RDS")
+  #only generate RDS file if it doesn't exist yet!
+  if (!file.exists(k2m_output[i])){
+    krakenToMatrix(
+      filePath=paste0(SNAKEMAKE_DIR[i], SAMPLES[i], "_profiling_output.txt"),
+      outDir=OUT_DIR[i])
+  }
+}
+```
+
+
+## 2. decontaminate()
+
+```{r}
+SAMPLE_ID <- c()
+for (i in 1:length(SAMPLES)){
+  SAMPLE_ID[i] <- paste0("SAMPLE_", i)
+}
+```
+
+Generating decontaminated taxID-spot matrices and Seurat objects with *decontaminate()*.
+```{r message=FALSE, warning=FALSE}
+for (i in 1:length(SAMPLES)){
+  print("\n")
+  print(paste0("Processing sample ", SAMPLES[i]))
+  assign(SAMPLE_ID[i], decontaminate(sampleName=SAMPLES[i],
+                                 filePath=k2m_output[i],
+                                 spacerangerDir=SPACERANGER_DIR[i],
+                                 outDir=OUT_DIR[i],
+                                 spots="tissueOnly"))
+  #removing samples with no taxa left after decontamination
+  if (is.null(SAMPLE_ID[i])){rm(SAMPLES[i])}
+}
+```
+
+## 3. Looking at the microbiome profiles of the individual samples {.tabset}
+
+### SAMPLE_1
+
+#### pseudobulk microbiome composition
+```{r results='asis'}
+print(kable(SAMPLE_1$taxid_counts %>% filter(counts>10)))
+pseudoBulkProfile(sampleName="SAMPLE_1", object=SAMPLE_1)
+```
+
+#### spatial microbiome composition {.tabset}
+```{r}
+#interactive Shiny app (can't be shown in html output)
+#interactive_spatialPlot(SAMPLE_1)
+```
+
+warning: if e.g. no viral or eukaryotic taxa detected, there will be an error!
+```{r warning=FALSE}
+spatialPlot(SAMPLE_1, taxa="all")
+spatialPlot(SAMPLE_1, taxa="bacterial")
+spatialPlot(SAMPLE_1, taxa="viral")
+spatialPlot(SAMPLE_1, taxa="eukaryotic")
+```
+
+spatialPlot for every taxon detected in the sample
+```{r  results='asis'}
+taxids <- SAMPLE_1$taxid_counts %>% filter(counts>10) %>% select(taxid)
+taxnames <- taxonomizr::getTaxonomy(ids=taxids$taxid, taxonomizrDB, desiredTaxa="genus")
+for (i in 1:length(taxnames)){
+  cat("#####", taxnames[i], "\n")
+  cat("\n")
+  print(spatialPlot(SAMPLE_1, taxa=taxnames[i]))
+  cat("\n\n")
+}
+```
+
+#### exporting the taxID-spot matrix
+exporting the matrix as csv
+```{r}
+export_matrix(object=SAMPLE_1, outDir=OUT_DIR[1])
+```
+
+### SAMPLE_2
+
+#### pseudobulk microbiome composition
+```{r results='asis'}
+print(kable(SAMPLE_2$taxid_counts %>% filter(counts>10)))
+pseudoBulkProfile(sampleName="SAMPLE_2", object=SAMPLE_2)
+```
+
+#### spatial microbiome composition {.tabset}
+```{r}
+#interactive Shiny app (can't be shown in html output)
+#interactive_spatialPlot(SAMPLE_2)
+```
+
+warning: if e.g. no viral or eukaryotic taxa detected, there will be an error!
+```{r warning=FALSE}
+spatialPlot(SAMPLE_2, taxa="all")
+spatialPlot(SAMPLE_2, taxa="bacterial")
+spatialPlot(SAMPLE_2, taxa="viral")
+spatialPlot(SAMPLE_2, taxa="eukaryotic")
+```
+
+spatialPlot for every taxon detected in the sample
+```{r results='asis'}
+taxids <- SAMPLE_2$taxid_counts %>% filter(counts>10) %>% select(taxid)
+taxnames <- taxonomizr::getTaxonomy(ids=taxids$taxid, taxonomizrDB, desiredTaxa="genus")
+for (i in 1:length(taxnames)){
+  cat("#####", taxnames[i], "\n")
+  cat("\n")
+  print(spatialPlot(SAMPLE_2, taxa=taxnames[i]))
+  cat("\n\n")
+}
+```
+
+#### exporting the taxID-spot matrix
+
+exporting the matrix as csv
+```{r}
+export_matrix(object=SAMPLE_2, outDir=OUT_DIR[2])
+```
+
+
